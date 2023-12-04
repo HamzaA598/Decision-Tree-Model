@@ -1,4 +1,7 @@
 # imports
+import pandas as pd
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -6,8 +9,27 @@ from sklearn.metrics import accuracy_score
 NUMBER_OF_REPETITIONS = 5
 
 # data preprocessing
-X = []
-y = []
+df = pd.read_csv('drug.csv')
+missing_values_count = df.isna().sum()
+
+# replace missing numerical data with the mean
+imputer = SimpleImputer(strategy='mean')
+df[['Age', 'Na_to_K']] = imputer.fit_transform(df[['Age', 'Na_to_K']])
+
+# drop missing categorial data
+df.dropna(inplace=True)
+
+# encoding categorial values
+label_encoder = LabelEncoder()
+
+df['Sex'] = label_encoder.fit_transform(df['Sex'])
+df['BP'] = label_encoder.fit_transform(df['BP'])
+df['Cholesterol'] = label_encoder.fit_transform(df['Cholesterol'])
+df['Drug'] = label_encoder.transform(df['Drug'])
+
+
+X = df[['Age', 'Sex', 'BP', 'Cholesterol', 'Na_to_K']]
+y = df['Drug']
 
 # first experiment
 for i in range(NUMBER_OF_REPETITIONS):
