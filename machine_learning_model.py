@@ -33,12 +33,28 @@ df['Drug'] = label_encoder.fit_transform(df['Drug'])
 X = df[['Age', 'Sex', 'BP', 'Cholesterol', 'Na_to_K']]
 y = df['Drug']
 
-Accuracies = []
+
+# first experiment
+best_classifier = None
+best_accuracy = 0
+for i in range(NUMBER_OF_REPETITIONS):
+    # Split the data into training and testing sets randomly
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=None)
+
+    clf = DecisionTreeClassifier()
+    clf.fit(X_train, y_train)
+    tree_size = clf.tree_.node_count
+    accuracy = clf.score(X_test, y_test)
+    if accuracy > best_accuracy:
+        best_classifier = clf
+
+print("best classifier has an accuracy = ", accuracy, "the number of nodes in the tree = ", clf.tree_.node_count, end = "")
 
 
-TreeSizes = []
+# second experiment
 
-results = {'Mean_Accuracy': [], 'Max_Accuracy': [], 'Min_Accuracy': [],
+
+results = {'Train_Size': [], 'Mean_Accuracy': [], 'Max_Accuracy': [], 'Min_Accuracy': [],
                'Mean_Tree_Size': [], 'Max_Tree_Size': [], 'Min_Tree_Size': []}
 
 
@@ -71,7 +87,8 @@ def createReport():
     plt.show()
 
 
-def Calculate():
+def Calculate(train_size, Accuracies, TreeSizes):
+    results['Train_Size'].append(train_size)
     results['Mean_Accuracy'].append(sum(Accuracies) / NUMBER_OF_REPETITIONS)
     results['Max_Accuracy'].append(max(Accuracies))
     results['Min_Accuracy'].append(min(Accuracies))
@@ -82,43 +99,27 @@ def Calculate():
 
 def Experiment2():
     testSize = 0.7
-    for i in range(NUMBER_OF_REPETITIONS):
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=testSize)
-        # Create a decision tree classifier
-        clf = DecisionTreeClassifier()
+    while testSize >= 0.3:
+        Accuracies = []
+        TreeSizes = []
+        for i in range(NUMBER_OF_REPETITIONS):
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=testSize)
+            # Create a decision tree classifier
+            clf = DecisionTreeClassifier()
 
-        # Train the classifier on the training data
-        clf.fit(X_train, y_train)
+            # Train the classifier on the training data
+            clf.fit(X_train, y_train)
 
-        # Make predictions on the testing data
-        y_pred = clf.predict(X_test)
+            # Make predictions on the testing data
+            y_pred = clf.predict(X_test)
 
-        # Evaluate the performance of the classifier
-        Accuracies.append(metrics.accuracy_score(y_test, y_pred))
-        TreeSizes.append(clf.tree_.node_count)
-
+            # Evaluate the performance of the classifier
+            Accuracies.append(accuracy_score(y_test, y_pred))
+            TreeSizes.append(clf.tree_.node_count)
         testSize -= 0.1
+        Calculate(1 - testSize, Accuracies, TreeSizes)
 
-    Calculate()
     createReport()
 
-
-# first experiment
-best_classifier = None
-best_accuracy = 0
-for i in range(NUMBER_OF_REPETITIONS):
-    # Split the data into training and testing sets randomly
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=None)
-
-    clf = DecisionTreeClassifier()
-    clf.fit(X_train, y_train)
-    tree_size = clf.tree_.node_count
-    accuracy = clf.score(X_test, y_test)
-    if accuracy > best_accuracy:
-        best_classifier = clf
-
-print("best classifier has an accuracy = ", accuracy, "the number of nodes in the tree = ", clf.tree_.node_count, end = "")
-
-# second experiment
 Experiment2()
 
