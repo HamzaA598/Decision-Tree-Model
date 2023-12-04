@@ -1,16 +1,37 @@
+# imports
 import pandas as pd
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier
-from sklearn import metrics
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
 
 NUMBER_OF_REPETITIONS = 5
 
-data = pd.read_csv('./data/drug.csv')
 
-X = data.drop('Drug', axis=1)  # Features
-y = data['Drug']  # Target variable
+# data preprocessing
+df = pd.read_csv('./data/drug.csv')
+missing_values_count = df.isna().sum()
+
+# replace missing numerical data with the mean
+imputer = SimpleImputer(strategy='mean')
+df[['Age', 'Na_to_K']] = imputer.fit_transform(df[['Age', 'Na_to_K']])
+
+# drop missing categorial data
+df.dropna(inplace=True)
+
+# encoding categorial values
+label_encoder = LabelEncoder()
+
+df['Sex'] = label_encoder.fit_transform(df['Sex'])
+df['BP'] = label_encoder.fit_transform(df['BP'])
+df['Cholesterol'] = label_encoder.fit_transform(df['Cholesterol'])
+df['Drug'] = label_encoder.fit_transform(df['Drug'])
+
+
+X = df[['Age', 'Sex', 'BP', 'Cholesterol', 'Na_to_K']]
+y = df['Drug']
 
 Accuracies = []
 
@@ -82,10 +103,6 @@ def Experiment2():
     createReport()
 
 
-
-
-
-
 # first experiment
 for i in range(NUMBER_OF_REPETITIONS):
     # Split the data into training and testing sets randomly
@@ -99,4 +116,6 @@ for i in range(NUMBER_OF_REPETITIONS):
     print(f"Iteration {i + 1} - Training Set Size: {len(X_train)}, Testing Set Size: {len(X_test)}")
 
 
+# second experiment
 Experiment2()
+
