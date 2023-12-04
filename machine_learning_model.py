@@ -32,17 +32,20 @@ X = df[['Age', 'Sex', 'BP', 'Cholesterol', 'Na_to_K']]
 y = df['Drug']
 
 # first experiment
+best_classifier = None
+best_accuracy = 0
 for i in range(NUMBER_OF_REPETITIONS):
     # Split the data into training and testing sets randomly
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=None)
 
     clf = DecisionTreeClassifier()
     clf.fit(X_train, y_train)
+    tree_size = clf.tree_.node_count
     accuracy = clf.score(X_test, y_test)
-    print(f"Accuracy: {accuracy}")
+    if accuracy > best_accuracy:
+        best_classifier = clf
 
-    print(f"Iteration {i + 1} - Training Set Size: {len(X_train)}, Testing Set Size: {len(X_test)}")
-
+print("best classifier has an accuracy = ", accuracy, "the number of nodes in the tree = ", clf.tree_.node_count, end = "")
 
 # second experiment
 
