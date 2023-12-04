@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 NUMBER_OF_REPETITIONS = 5
 
 # data preprocessing
-df = pd.read_csv('drug.csv')
+df = pd.read_csv('./data/drug.csv')
 missing_values_count = df.isna().sum()
 
 # replace missing numerical data with the mean
@@ -25,7 +25,7 @@ label_encoder = LabelEncoder()
 df['Sex'] = label_encoder.fit_transform(df['Sex'])
 df['BP'] = label_encoder.fit_transform(df['BP'])
 df['Cholesterol'] = label_encoder.fit_transform(df['Cholesterol'])
-df['Drug'] = label_encoder.transform(df['Drug'])
+df['Drug'] = label_encoder.fit_transform(df['Drug'])
 
 
 X = df[['Age', 'Sex', 'BP', 'Cholesterol', 'Na_to_K']]
@@ -45,3 +45,4 @@ for i in range(NUMBER_OF_REPETITIONS):
 
 
 # second experiment
+
