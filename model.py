@@ -24,12 +24,6 @@ df.dropna(inplace=True)
 # encoding categorial values
 label_encoder = LabelEncoder()
 
-df['Sex'] = label_encoder.fit_transform(df['Sex'])
-df['BP'] = label_encoder.fit_transform(df['BP'])
-df['Cholesterol'] = label_encoder.fit_transform(df['Cholesterol'])
-df['Drug'] = label_encoder.fit_transform(df['Drug'])
-
-
 X = df[['Age', 'Sex', 'BP', 'Cholesterol', 'Na_to_K']]
 y = df['Drug']
 
@@ -41,14 +35,22 @@ for i in range(NUMBER_OF_REPETITIONS):
     # Split the data into training and testing sets randomly
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=None)
 
+    # Apply encoding on training data
+    for column in ['Sex', 'BP', 'Cholesterol']:
+        label_encoder.fit(X_train[column])
+        X_train[column] = label_encoder.transform(X_train[column])
+        X_test[column] = label_encoder.transform(X_test[column])
+
     clf = DecisionTreeClassifier()
     clf.fit(X_train, y_train)
     tree_size = clf.tree_.node_count
+    # uses predict to get y_predict and compares it with y_test to calculate the score
     accuracy = clf.score(X_test, y_test)
     if accuracy > best_accuracy:
         best_classifier = clf
-
-print("best classifier has an accuracy = ", accuracy, "the number of nodes in the tree = ", clf.tree_.node_count, end = "")
+        best_accuracy = accuracy
+        
+print("best classifier has an accuracy = ", best_accuracy, "the number of nodes in the tree = ", clf.tree_.node_count, end = "")
 
 
 # second experiment
@@ -104,6 +106,13 @@ def Experiment2():
         TreeSizes = []
         for i in range(NUMBER_OF_REPETITIONS):
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=testSize)
+
+            # Apply encoding on training data
+            for column in ['Sex', 'BP', 'Cholesterol']:
+                label_encoder.fit(X_train[column])
+                X_train[column] = label_encoder.transform(X_train[column])
+                X_test[column] = label_encoder.transform(X_test[column])
+        
             # Create a decision tree classifier
             clf = DecisionTreeClassifier()
 
@@ -116,10 +125,9 @@ def Experiment2():
             # Evaluate the performance of the classifier
             Accuracies.append(accuracy_score(y_test, y_pred))
             TreeSizes.append(clf.tree_.node_count)
-        testSize -= 0.1
         Calculate(1 - testSize, Accuracies, TreeSizes)
+        testSize -= 0.1
 
     createReport()
 
 Experiment2()
-
