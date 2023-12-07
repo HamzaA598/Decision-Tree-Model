@@ -41,7 +41,7 @@ for i in range(NUMBER_OF_REPETITIONS):
         X_train[column] = label_encoder.transform(X_train[column])
         X_test[column] = label_encoder.transform(X_test[column])
 
-    clf = DecisionTreeClassifier()
+    clf = DecisionTreeClassifier(criterion="entropy")
     clf.fit(X_train, y_train)
     tree_size = clf.tree_.node_count
     # uses predict to get y_predict and compares it with y_test to calculate the score
@@ -114,7 +114,7 @@ def Experiment2():
                 X_test[column] = label_encoder.transform(X_test[column])
         
             # Create a decision tree classifier
-            clf = DecisionTreeClassifier()
+            clf = DecisionTreeClassifier(criterion="entropy")
 
             # Train the classifier on the training data
             clf.fit(X_train, y_train)
